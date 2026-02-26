@@ -1,49 +1,46 @@
 import requests
 from bs4 import BeautifulSoup
-import PyPDF2
+import pdfplumber
 import io
+from urllib.parse import urljoin
 
-# 1. The main school page where the PDF is listed
-BASE_URL = "https://sites.google.com/view/program-4lyk-ilioup/"
+# CONFIGURATION
+SCHOOL_PAGE_URL = "https://sites.google.com/view/program-4lyk-ilioup/"
+PROF_COLUMN_INDEX = 2  # Change this (0 is first column, 1 is second, etc.)
 
-def find_and_check_pdf():
-    try:
-        # Visit the page
-        response = requests.get(BASE_URL, timeout=15)
-        soup = BeautifulSoup(response.text, 'html.parser')
-        
-        # Look for any link ending in .pdf
-        pdf_link = None
-        for link in soup.find_all('a', href=True):
-            if link['href'].endswith('.pdf'):
-                pdf_link = link['href']
-                break
-        
-        if not pdf_link:
-            print("Status: No PDF found on the page yet.")
-            return
+def run_ai():
+    # 1. Find PDF
+    response = requests.get(SCHOOL_PAGE_URL)
+    soup = BeautifulSoup(response.text, 'html.parser')
+    pdf_url = ""
+    for link in soup.find_all('a', href=True):
+        if link['href'].lower().endswith('.pdf'):
+            pdf_url = urljoin(SCHOOL_PAGE_URL, link['href'])
+            break
+    
+    if not pdf_url:
+        print("No PDF found.")
+        return
 
-        # Handle relative links (if the link is just '/file.pdf')
-        if not pdf_link.startswith('http'):
-            from urllib.parse import urljoin
-            pdf_link = urljoin(BASE_URL, pdf_link)
+    # 2. Extract Professors
+    pdf_data = requests.get(pdf_url).content
+    profs = set() # Use a set to avoid duplicates
+    
+    with pdfplumber.open(io.BytesIO(pdf_data)) as pdf:
+        for page in pdf.pages:
+            table = page.extract_table()
+            if table:
+                for row in table[1:]: # Skip header row
+                    if len(row) > PROF_COLUMN_INDEX:
+                        name = row[PROF_COLUMN_INDEX]
+                        if name: profs.add(name.strip())
 
-        # Download and Count Lines
-        print(f"Found PDF at: {pdf_link}")
-        pdf_req = requests.get(pdf_link)
-        pdf_file = io.BytesIO(pdf_req.content)
-        reader = PyPDF2.PdfReader(pdf_file)
-        
-        total_lines = 0
-        for page in reader.pages:
-            text = page.extract_text()
-            if text:
-                total_lines += len(text.split('\n'))
-        
-        print(f"Success! PDF has {total_lines} lines.")
-        
-    except Exception as e:
-        print(f"Error: {e}")
+    # 3. Save the List
+    with open("professors.txt", "w") as f:
+        f.write("AI GENERATED PROFESSOR LIST:\n")
+        for p in sorted(profs):
+            f.write(f"- {p}\n")
+    print(f"Success! Saved {len(profs)} professors to professors.txt")
 
 if __name__ == "__main__":
-    find_and_check_pdf()
+    run_ai()
