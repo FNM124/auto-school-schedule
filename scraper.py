@@ -43,7 +43,7 @@ def find_and_check_pdf():
         print(f"Success! PDF has {total_lines} lines.")
         
     except Exception as e:
-        print(f"AI Error: {e}")
+        print(f"Error: {e}")
 
 if __name__ == "__main__":
     find_and_check_pdf()
