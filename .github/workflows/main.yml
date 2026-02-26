@@ -1,19 +1,17 @@
 name: Auto School Schedule
 on:
-  workflow_dispatch:      # Gives you the manual 'Run' button
+  workflow_dispatch:
   schedule:
-    - cron: '0 */2 * * *' # Automatically runs every 2 hours
+    - cron: '0 */2 * * *'
 
 jobs:
   run-ai:
     runs-on: ubuntu-latest
     permissions:
-      contents: write     # Vital: Allows the bot to save professors.txt
+      contents: write
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
-        with:
-          persist-credentials: true
 
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -21,7 +19,7 @@ jobs:
           python-version: '3.10'
 
       - name: Install Libraries
-        run: pip install requests pdfplumber
+        run: pip install requests pdfplumber beautifulsoup4
 
       - name: Run Scraper
         run: python scraper.py
@@ -30,6 +28,7 @@ jobs:
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git add professors.txt || echo "No file created"
+          # This line ensures we don't crash if the file is missing
+          git add professors.txt || echo "No file found to add"
           git commit -m "AI automated update" || exit 0
           git push
