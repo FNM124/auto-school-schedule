@@ -1,14 +1,16 @@
 name: Auto School Schedule
 on:
   schedule:
-    - cron: '0 */2 * * *' # This tells it to run every 2 hours
-  workflow_dispatch:      # This adds a "Run Now" button for testing
+    - cron: '0 */2 * * *' # Every 2 hours
+  workflow_dispatch:      # Lets you click "Run" manually
 
 jobs:
-  check-schedule:
+  run-ai:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write     # Vital: Gives the AI permission to save files
     steps:
-      - name: Checkout code
+      - name: Checkout Code
         uses: actions/checkout@v4
 
       - name: Set up Python
@@ -20,6 +22,13 @@ jobs:
         run: |
           pip install requests beautifulsoup4 pdfplumber pandas
 
-      - name: Run the AI
+      - name: Run Scraper
         run: python scraper.py
-        
+
+      - name: Save Professor List to GitHub
+        run: |
+          git config --global user.name "Schedule-Bot"
+          git config --global user.email "bot@github.com"
+          git add professors.txt
+          git commit -m "AI update: New Professor List" || exit 0
+          git push
