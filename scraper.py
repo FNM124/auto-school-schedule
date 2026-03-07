@@ -1,61 +1,56 @@
 import requests
-from bs4 import BeautifulSoup
 import pdfplumber
 import io
 import re
 
 # --- CONFIGURATION ---
 URL = "https://sites.google.com/view/program-4lyk-ilioup/"
-PROF_COLUMN = 2  # Column index for names (0 = 1st column, 1 = 2nd, 2 = 3rd)
+PROF_COLUMN = 2  
 
 def run_scraper():
-    print(f"Starting daily extraction from: {URL}")
-    
-    # 1. Create file immediately to prevent GitHub Action Error 128
+    print(f"Starting Deep Scanner on: {URL}")
     with open("professors.txt", "w", encoding="utf-8") as f:
-        f.write("Status: Initializing search...\n")
+        f.write("Status: Initializing Deep Scanner...\n")
 
     try:
-        # 2. Fetch the website content
         headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'}
         response = requests.get(URL, headers=headers, timeout=15)
         response.raise_for_status()
-        soup = BeautifulSoup(response.text, 'html.parser')
         
-        # 3. Hunt for the hidden Google Drive File ID
+        # 1. Clean the raw site code so hidden URLs are readable
+        raw_text = response.text.replace('\\/', '/')
+        
         file_id = None
+        pdf_url = None
         
-        # Check iframes (windows) first
-        for iframe in soup.find_all('iframe'):
-            src = iframe.get('src', '')
-            # Regex looks for standard Google Drive 25+ character IDs
-            match = re.search(r'/d/([a-zA-Z0-9_-]{25,})', src) or re.search(r'id=([a-zA-Z0-9_-]{25,})', src)
-            if match:
-                file_id = match.group(1)
-                break
-                
-        # Backup: Check standard links if no iframe had it
-        if not file_id:
-            for link in soup.find_all('a', href=True):
-                href = link['href']
-                match = re.search(r'/d/([a-zA-Z0-9_-]{25,})', href) or re.search(r'id=([a-zA-Z0-9_-]{25,})', href)
-                if match:
-                    file_id = match.group(1)
-                    break
+        # 2. Aggressive search for ANY Google Drive file ID in the raw code
+        drive_matches = re.findall(r'drive\.google\.com/file/d/([a-zA-Z0-9_-]{25,})', raw_text)
+        if not drive_matches:
+            # Check for alternate Drive formats hidden in the Javascript
+            drive_matches = re.findall(r'docs\.google\.com/viewer\?.*?id=([a-zA-Z0-9_-]{25,})', raw_text)
+            
+        if drive_matches:
+            file_id = drive_matches[0] # Grab the first ID it finds
+            print(f"Deep Scanner found hidden Drive ID: {file_id}")
+            pdf_url = f"https://drive.google.com/uc?export=download&id={file_id}"
+            
+        # 3. Backup: Look for direct .pdf links in the raw code
+        if not pdf_url:
+            pdf_matches = re.findall(r'(https?://[^\s"\'<>]+\.pdf)', raw_text)
+            if pdf_matches:
+                pdf_url = pdf_matches[0]
+                print(f"Deep Scanner found hidden PDF link: {pdf_url}")
 
-        if not file_id:
-            msg = "Status: Could not find an embedded PDF window or Drive link on the site."
+        if not pdf_url:
+            msg = "Status: Deep Scanner failed. The file ID is completely masked by Google Sites."
             print(msg)
             with open("professors.txt", "w", encoding="utf-8") as f:
                 f.write(msg)
             return
 
-        # 4. Construct Direct Download URL
-        direct_pdf_url = f"https://drive.google.com/uc?export=download&id={file_id}"
-        print(f"Found PDF Document ID: {file_id}")
-        
-        # 5. Download and Parse the PDF
-        pdf_response = requests.get(direct_pdf_url, timeout=20)
+        # 4. Download and Read
+        print(f"Downloading PDF from: {pdf_url}")
+        pdf_response = requests.get(pdf_url, timeout=20)
         pdf_response.raise_for_status()
         
         profs = set()
@@ -63,15 +58,13 @@ def run_scraper():
             for page in pdf.pages:
                 table = page.extract_table()
                 if table:
-                    for row in table[1:]: # Skip header row
-                        # Ensure row is long enough and cell isn't empty
+                    for row in table[1:]: 
                         if len(row) > PROF_COLUMN and row[PROF_COLUMN]:
                             name = str(row[PROF_COLUMN]).strip()
-                            # Ignore empty spaces or glitchy short reads
                             if name and len(name) > 2 and name.lower() != "none":
                                 profs.add(name)
 
-        # 6. Save the final list
+        # 5. Save the List
         with open("professors.txt", "w", encoding="utf-8") as f:
             if profs:
                 f.write("--- LATEST PROFESSOR LIST ---\n")
@@ -79,11 +72,10 @@ def run_scraper():
                     f.write(f"{p}\n")
                 print(f"Success! Extracted {len(profs)} professors.")
             else:
-                f.write("Status: PDF read successfully, but no names found. Try changing PROF_COLUMN in the code.")
-                print("Table extracted but column was empty.")
+                f.write("Status: PDF read successfully, but no names found. Try changing PROF_COLUMN.")
 
     except Exception as e:
-        error_msg = f"Status: Error occurred during execution - {e}"
+        error_msg = f"Status: Error occurred - {e}"
         print(error_msg)
         with open("professors.txt", "w", encoding="utf-8") as f:
             f.write(error_msg)
