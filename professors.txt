@@ -1,3 +1,1 @@
---- ΔΕΥΤΕΡΑ (Next Week) SCHEDULE FOR ΒΑΝ1 ---
-Hour 2: ΛΕΝΤΖΟΥ
-Hour 3: ΛΕΝΤΖΟΥ
+Error: Could not find ΔΕΥΤΕΡΑ or ΣΑΒΒΑΤΟ in the PDF.
