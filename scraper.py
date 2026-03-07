@@ -6,88 +6,89 @@ from datetime import datetime
 
 # --- CONFIGURATION ---
 URL = "https://sites.google.com/view/program-4lyk-ilioup/"
-MY_CLASS = "ΒΑΝ1"
+CLASSES = ["Β3", "ΒΘ2"] # Priority list
 
 def clean_text(text):
-    """Removes spaces and common Greek accents for better matching."""
+    """Normalizes Greek text for reliable header matching."""
     if not text: return ""
-    # Remove spaces, dots, and convert to upper case
     text = str(text).replace(" ", "").replace(".", "").upper()
-    # Basic normalization for Greek accents
     replacements = {'Ά': 'Α', 'Έ': 'Ε', 'Ή': 'Η', 'Ί': 'Ι', 'Ό': 'Ο', 'Ύ': 'Υ', 'Ώ': 'Ω'}
     for k, v in replacements.items():
         text = text.replace(k, v)
     return text
 
 def run_scraper():
-    # 1. Determine Target Day
+    # 1. Target Next School Day
     days_gr = ["ΔΕΥΤΕΡΑ", "ΤΡΙΤΗ", "ΤΕΤΑΡΤΗ", "ΠΕΜΠΤΗ", "ΠΑΡΑΣΚΕΥΗ", "ΣΑΒΒΑΤΟ", "ΚΥΡΙΑΚΗ"]
     now = datetime.now()
     today_idx = now.weekday()
     
-    # Logic: Next Day, but skip to Monday if it's the weekend
+    # Fri/Sat/Sun -> Monday; otherwise -> Tomorrow
     target_idx = 0 if today_idx >= 4 else today_idx + 1
     target_day = days_gr[target_idx]
     
-    print(f"Bot Goal: Find {target_day} in the PDF...")
+    print(f"Status: Verifying PDF for {target_day}...")
 
     try:
-        # 2. Get the PDF
+        # 2. Extract PDF ID
         headers = {'User-Agent': 'Mozilla/5.0'}
         raw_text = requests.get(URL, headers=headers).text.replace('\\/', '/')
         file_id = re.search(r'drive\.google\.com/file/d/([a-zA-Z0-9_-]{25,})', raw_text).group(1)
         pdf_url = f"https://drive.google.com/uc?export=download&id={file_id}"
         pdf_data = requests.get(pdf_url).content
         
-        my_schedule = []
+        final_schedule = []
         found_column = -1
 
         with pdfplumber.open(io.BytesIO(pdf_data)) as pdf:
             table = pdf.pages[0].extract_table()
-            if not table:
-                raise Exception("Could not find a table in the PDF.")
-
-            # 3. VERIFY THE DAY
-            # We check the top 3 rows for the target day name
+            
+            # 3. Verify Day Location
             for r_idx in range(min(3, len(table))):
                 for c_idx, cell in enumerate(table[r_idx]):
-                    cleaned_cell = clean_text(cell)
-                    if clean_text(target_day) in cleaned_cell:
+                    if clean_text(target_day) in clean_text(cell):
                         found_column = c_idx
-                        print(f"Match found! {target_day} is at column {c_idx}")
                         break
                 if found_column != -1: break
 
             if found_column == -1:
-                # If we didn't find the target, see what IS there to tell the user
-                current_pdf_day = clean_text(table[0][1]) if len(table[0]) > 1 else "Unknown"
                 with open("professors.txt", "w", encoding="utf-8") as f:
-                    f.write(f"ALERT: I was looking for {target_day}, but the PDF header seems to show {current_pdf_day}.\n")
-                    f.write("The school likely hasn't updated the file for the next day yet.")
+                    f.write(f"ALERT: Could not verify {target_day} in the current PDF.\n")
+                    f.write("The school likely hasn't updated for the next day.")
                 return
 
-            # 4. SCRAPE THE DATA
-            # Once verified, we look at the 7 columns for that day
-            day_range = range(found_column, found_column + 7)
-            for row in table:
-                if not row or not row[0]: continue
-                prof = str(row[0]).strip()
+            # 4. Priority Search Logic
+            for h in range(7):
+                hour_match = ""
+                col_idx = found_column + h
                 
-                for i, col_idx in enumerate(day_range):
-                    if col_idx < len(row) and MY_CLASS in str(row[col_idx]):
-                        my_schedule.append(f"Hour {i+1}: {prof}")
+                # Check for Priority 1 (Β3)
+                for row in table[2:]:
+                    cell = str(row[col_idx]) if len(row) > col_idx else ""
+                    if CLASSES[0] in cell:
+                        hour_match = f"Hour {h+1}: {row[0]} ({CLASSES[0]})"
+                        break
+                
+                # If no Β3, Check for Priority 2 (ΒΘ2)
+                if not hour_match:
+                    for row in table[2:]:
+                        cell = str(row[col_idx]) if len(row) > col_idx else ""
+                        if CLASSES[1] in cell:
+                            hour_match = f"Hour {h+1}: {row[0]} ({CLASSES[1]})"
+                            break
+                
+                # If neither, leave blank
+                final_schedule.append(hour_match if hour_match else f"Hour {h+1}: ")
 
-        # 5. SAVE
+        # 5. Output
         with open("professors.txt", "w", encoding="utf-8") as f:
-            f.write(f"--- VERIFIED SCHEDULE FOR {target_day} ({MY_CLASS}) ---\n")
-            if my_schedule:
-                for entry in sorted(my_schedule): f.write(f"{entry}\n")
-            else:
-                f.write("No classes found in the verified section.")
+            f.write(f"--- VERIFIED {target_day} SCHEDULE ---\n")
+            for line in final_schedule:
+                f.write(line + "\n")
 
     except Exception as e:
         with open("professors.txt", "w", encoding="utf-8") as f:
-            f.write(f"Error: {e}")
+            f.write(f"System Error: {e}")
 
 if __name__ == "__main__":
     run_scraper()
