@@ -1,14 +1,14 @@
 name: Auto School Schedule
 on:
-  workflow_dispatch:
+  workflow_dispatch:      # Allows the manual 'Run workflow' button
   schedule:
-    - cron: '0 */2 * * *'
+    - cron: '0 */2 * * *' # Runs automatically every 2 hours
 
 jobs:
-  run-ai:
+  run-scraper:
     runs-on: ubuntu-latest
     permissions:
-      contents: write
+      contents: write     # Vital: Allows saving files back to the repository
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -19,16 +19,16 @@ jobs:
           python-version: '3.10'
 
       - name: Install Libraries
-        run: pip install requests pdfplumber beautifulsoup4
+        run: pip install requests beautifulsoup4 pdfplumber
 
       - name: Run Scraper
         run: python scraper.py
 
-      - name: Save Results
+      - name: Save Results to GitHub
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          # This line ensures we don't crash if the file is missing
-          git add professors.txt || echo "No file found to add"
-          git commit -m "AI automated update" || exit 0
+          git add professors.txt || echo "No file to add"
+          git commit -m "Auto-update: New Professor List" || exit 0
           git push
+          
