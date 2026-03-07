@@ -1,1 +1,3 @@
-Error: Could not find ΔΕΥΤΕΡΑ or ΣΑΒΒΑΤΟ in the PDF.
+--- VERIFIED SCHEDULE FOR ΔΕΥΤΕΡΑ (ΒΑΝ1) ---
+Hour 2: ΛΕΝΤΖΟΥ
+Hour 3: ΛΕΝΤΖΟΥ
