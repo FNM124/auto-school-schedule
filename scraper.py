@@ -57,28 +57,62 @@ def run_scraper():
                     f.write("The school likely hasn't updated for the next day.")
                 return
 
-            # 4. Priority Search Logic
+            # 4. Priority Search Logic (With 2-hour merged cell support)
+            ongoing_classes = {} # Maps row_index -> class_name to handle carry-overs
+
             for h in range(7):
-                hour_match = ""
                 col_idx = found_column + h
                 
-                # Check for Priority 1 (Β3)
-                for row in table[2:]:
-                    cell = str(row[col_idx]) if len(row) > col_idx else ""
-                    if CLASSES[0] in cell:
-                        hour_match = f"Hour {h+1}: {row[0]} ({CLASSES[0]})"
-                        break
+                explicit_b3_teacher = None
+                explicit_bth2_teacher = None
+                carried_b3_teacher = None
+                carried_bth2_teacher = None
+
+                for r_idx, row in enumerate(table[2:]):
+                    raw_cell = row[col_idx] if len(row) > col_idx else None
+                    cell_str = str(raw_cell).strip() if raw_cell is not None else ""
+                    
+                    if cell_str != "" and cell_str != "None":
+                        # Explicit text found in the cell
+                        if CLASSES[0] in cell_str:
+                            ongoing_classes[r_idx] = CLASSES[0]
+                            if not explicit_b3_teacher: explicit_b3_teacher = row[0]
+                        elif CLASSES[1] in cell_str:
+                            ongoing_classes[r_idx] = CLASSES[1]
+                            if not explicit_bth2_teacher: explicit_bth2_teacher = row[0]
+                        else:
+                            # They are teaching a different class; reset their status
+                            ongoing_classes[r_idx] = None
+                    else:
+                        # Cell is empty (possible merged cell for a 2-hour block)
+                        prev_class = ongoing_classes.get(r_idx)
+                        if prev_class == CLASSES[0]:
+                            if not carried_b3_teacher: carried_b3_teacher = row[0]
+                        elif prev_class == CLASSES[1]:
+                            if not carried_bth2_teacher: carried_bth2_teacher = row[0]
+                            
+                        # Immediately clear the carry-over so it doesn't bleed into a 3rd hour
+                        ongoing_classes[r_idx] = None
+
+                # Priority Resolution: 
+                # Explicit matches ALWAYS override carried-over (empty) matches to prevent 
+                # free-hours from being mistakenly marked as continuous blocks.
+                final_teacher = None
+                final_class = None
                 
-                # If no Β3, Check for Priority 2 (ΒΘ2)
-                if not hour_match:
-                    for row in table[2:]:
-                        cell = str(row[col_idx]) if len(row) > col_idx else ""
-                        if CLASSES[1] in cell:
-                            hour_match = f"Hour {h+1}: {row[0]} ({CLASSES[1]})"
-                            break
-                
-                # If neither, leave blank
-                final_schedule.append(hour_match if hour_match else f"Hour {h+1}: ")
+                if explicit_b3_teacher:
+                    final_teacher, final_class = explicit_b3_teacher, CLASSES[0]
+                elif carried_b3_teacher:
+                    final_teacher, final_class = carried_b3_teacher, CLASSES[0]
+                elif explicit_bth2_teacher:
+                    final_teacher, final_class = explicit_bth2_teacher, CLASSES[1]
+                elif carried_bth2_teacher:
+                    final_teacher, final_class = carried_bth2_teacher, CLASSES[1]
+                    
+                if final_teacher:
+                    final_schedule.append(f"Hour {h+1}: {final_teacher} ({final_class})")
+                else:
+                    final_schedule.append(f"Hour {h+1}: ")
 
         # 5. Output
         with open("professors.txt", "w", encoding="utf-8") as f:
