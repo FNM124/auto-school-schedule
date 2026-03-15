@@ -32,7 +32,7 @@ jobs:
           git commit -m "Auto-update: New Professor List" || exit 0
           git push
           
-   - name: Instant Deploy to InfinityFree
+      - name: Instant Deploy to InfinityFree
       uses: SamKirkland/FTP-Deploy-Action@v4.3.4
       with:
         server: ${{ secrets.FTP_SERVER }}
