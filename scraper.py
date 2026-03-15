@@ -79,15 +79,14 @@ def run_scraper():
                 if found_column != -1: break
 
             if found_column == -1:
-                error_msg = f"ALERT: Could not verify {target_day} in the current PDF.\nThe school likely hasn't updated for the next day."
-                # Save to text and html
+                error_msg = f"ALERT: Could not verify {target_day} in current PDF."
                 with open("professors.txt", "w", encoding="utf-8") as f:
                     f.write(error_msg)
                 update_web_html(error_msg, target_day)
                 return
 
-            # 4. Priority Search Logic (With 2-hour merged cell support)
-            ongoing_classes = {} # Maps row_index -> class_name to handle carry-overs
+            # 4. Search Logic
+            ongoing_classes = {} 
 
             for h in range(7):
                 col_idx = found_column + h
@@ -98,11 +97,11 @@ def run_scraper():
                 carried_bth2_teacher = None
 
                 for r_idx, row in enumerate(table[2:]):
-                    raw_cell = row[col_idx] if len(row) > col_idx else None
+                    raw_cell = row[col_idx] if len(row) > col_idx else "" 
                     cell_str = str(raw_cell).strip() if raw_cell is not None else ""
                     
-                    if cell_str != "" and cell_str != "None":
-                        # Explicit text found in the cell
+                    if raw_cell is not None and cell_str != "":
+                        # EXPLICIT TEXT found
                         if CLASSES[0] in cell_str:
                             ongoing_classes[r_idx] = CLASSES[0]
                             if not explicit_b3_teacher: explicit_b3_teacher = row[0]
@@ -110,17 +109,18 @@ def run_scraper():
                             ongoing_classes[r_idx] = CLASSES[1]
                             if not explicit_bth2_teacher: explicit_bth2_teacher = row[0]
                         else:
-                            # They are teaching a different class; reset their status
                             ongoing_classes[r_idx] = None
-                    else:
-                        # Cell is empty (possible merged cell for a 2-hour block)
+                            
+                    elif raw_cell is None:
+                        # MERGED CELL (Double hour shadow)
                         prev_class = ongoing_classes.get(r_idx)
                         if prev_class == CLASSES[0]:
                             if not carried_b3_teacher: carried_b3_teacher = row[0]
                         elif prev_class == CLASSES[1]:
                             if not carried_bth2_teacher: carried_bth2_teacher = row[0]
-                            
-                        # Immediately clear the carry-over so it doesn't bleed into a 3rd hour
+                        ongoing_classes[r_idx] = None
+                    else:
+                        # STANDARD GAP
                         ongoing_classes[r_idx] = None
 
                 # Priority Resolution
@@ -141,19 +141,15 @@ def run_scraper():
                 else:
                     final_schedule.append(f"Hour {h+1}: ")
 
-        # --- 5. OUTPUT SECTION ---
-        # Build the final text block
+        # --- 5. OUTPUT ---
         schedule_string = f"--- VERIFIED {target_day} SCHEDULE ---\n" + "\n".join(final_schedule)
         
-        # Save to backend database (professors.txt)
         with open("professors.txt", "w", encoding="utf-8") as f:
             f.write(schedule_string)
             
-        # Bake into frontend website (index.html)
         update_web_html(schedule_string, target_day)
 
     except Exception as e:
-        # Safety net: Show errors on the website too
         error_msg = f"System Error: {e}"
         with open("professors.txt", "w", encoding="utf-8") as f:
             f.write(error_msg)
