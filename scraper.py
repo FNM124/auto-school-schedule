@@ -17,6 +17,33 @@ def clean_text(text):
         text = text.replace(k, v)
     return text
 
+def update_web_html(schedule_text, target_day):
+    """Generates the static HTML file for the website."""
+    html_template = f"""
+    <!DOCTYPE html>
+    <html lang="el">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Schedule</title>
+        <style>
+            body {{ background: #0f0f0f; color: #00ff41; font-family: 'Courier New', monospace; padding: 20px; display: flex; justify-content: center; }}
+            .terminal {{ background: #000; border: 2px solid #333; padding: 20px; border-radius: 8px; max-width: 500px; width: 100%; box-shadow: 0 0 20px rgba(0,255,65,0.2); }}
+            pre {{ white-space: pre-wrap; font-size: 1.1rem; line-height: 1.5; margin: 0; }}
+            .meta {{ color: #444; font-size: 0.7rem; margin-top: 15px; border-top: 1px solid #222; padding-top: 10px; }}
+        </style>
+    </head>
+    <body>
+        <div class="terminal">
+            <pre>{schedule_text}</pre>
+            <div class="meta">SYSTEM_READY | LAST_SYNC: {datetime.now().strftime('%H:%M:%S')}</div>
+        </div>
+    </body>
+    </html>
+    """
+    with open("index.html", "w", encoding="utf-8") as f:
+        f.write(html_template)
+
 def run_scraper():
     # 1. Target Next School Day
     days_gr = ["ΔΕΥΤΕΡΑ", "ΤΡΙΤΗ", "ΤΕΤΑΡΤΗ", "ΠΕΜΠΤΗ", "ΠΑΡΑΣΚΕΥΗ", "ΣΑΒΒΑΤΟ", "ΚΥΡΙΑΚΗ"]
@@ -52,9 +79,11 @@ def run_scraper():
                 if found_column != -1: break
 
             if found_column == -1:
+                error_msg = f"ALERT: Could not verify {target_day} in the current PDF.\nThe school likely hasn't updated for the next day."
+                # Save to text and html
                 with open("professors.txt", "w", encoding="utf-8") as f:
-                    f.write(f"ALERT: Could not verify {target_day} in the current PDF.\n")
-                    f.write("The school likely hasn't updated for the next day.")
+                    f.write(error_msg)
+                update_web_html(error_msg, target_day)
                 return
 
             # 4. Priority Search Logic (With 2-hour merged cell support)
@@ -94,9 +123,7 @@ def run_scraper():
                         # Immediately clear the carry-over so it doesn't bleed into a 3rd hour
                         ongoing_classes[r_idx] = None
 
-                # Priority Resolution: 
-                # Explicit matches ALWAYS override carried-over (empty) matches to prevent 
-                # free-hours from being mistakenly marked as continuous blocks.
+                # Priority Resolution
                 final_teacher = None
                 final_class = None
                 
@@ -114,45 +141,23 @@ def run_scraper():
                 else:
                     final_schedule.append(f"Hour {h+1}: ")
 
-        # 5. Output
+        # --- 5. OUTPUT SECTION ---
+        # Build the final text block
+        schedule_string = f"--- VERIFIED {target_day} SCHEDULE ---\n" + "\n".join(final_schedule)
+        
+        # Save to backend database (professors.txt)
         with open("professors.txt", "w", encoding="utf-8") as f:
-            f.write(f"--- VERIFIED {target_day} SCHEDULE ---\n")
-            for line in final_schedule:
-                f.write(line + "\n")
+            f.write(schedule_string)
+            
+        # Bake into frontend website (index.html)
+        update_web_html(schedule_string, target_day)
 
     except Exception as e:
+        # Safety net: Show errors on the website too
+        error_msg = f"System Error: {e}"
         with open("professors.txt", "w", encoding="utf-8") as f:
-            f.write(f"System Error: {e}")
+            f.write(error_msg)
+        update_web_html(f"CRITICAL ERROR:\n{error_msg}", "ERROR")
 
 if __name__ == "__main__":
     run_scraper()
-
-
-
-def update_web_html(schedule_text, target_day):
-    # This creates a full HTML file with your schedule hard-coded
-    html_template = f"""
-    <!DOCTYPE html>
-    <html lang="el">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Schedule</title>
-        <style>
-            body {{ background: #0f0f0f; color: #00ff41; font-family: monospace; padding: 20px; display: flex; justify-content: center; }}
-            .terminal {{ background: #000; border: 2px solid #333; padding: 20px; border-radius: 8px; max-width: 500px; width: 100%; box-shadow: 0 0 20px rgba(0,255,65,0.2); }}
-            pre {{ white-space: pre-wrap; font-size: 1.1rem; line-height: 1.5; margin: 0; }}
-            .meta {{ color: #444; font-size: 0.7rem; margin-top: 15px; border-top: 1px solid #222; padding-top: 10px; }}
-        </style>
-    </head>
-    <body>
-        <div class="terminal">
-            <pre>{schedule_text}</pre>
-            <div class="meta">SYSTEM_READY | {datetime.now().strftime('%H:%M:%S')}</div>
-        </div>
-    </body>
-    </html>
-    """
-    with open("index.html", "w", encoding="utf-8") as f:
-        f.write(html_template)
-        
