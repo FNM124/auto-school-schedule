@@ -126,3 +126,33 @@ def run_scraper():
 
 if __name__ == "__main__":
     run_scraper()
+
+
+
+def update_web_html(schedule_text, target_day):
+    # This creates a full HTML file with your schedule hard-coded
+    html_template = f"""
+    <!DOCTYPE html>
+    <html lang="el">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Schedule</title>
+        <style>
+            body {{ background: #0f0f0f; color: #00ff41; font-family: monospace; padding: 20px; display: flex; justify-content: center; }}
+            .terminal {{ background: #000; border: 2px solid #333; padding: 20px; border-radius: 8px; max-width: 500px; width: 100%; box-shadow: 0 0 20px rgba(0,255,65,0.2); }}
+            pre {{ white-space: pre-wrap; font-size: 1.1rem; line-height: 1.5; margin: 0; }}
+            .meta {{ color: #444; font-size: 0.7rem; margin-top: 15px; border-top: 1px solid #222; padding-top: 10px; }}
+        </style>
+    </head>
+    <body>
+        <div class="terminal">
+            <pre>{schedule_text}</pre>
+            <div class="meta">SYSTEM_READY | {datetime.now().strftime('%H:%M:%S')}</div>
+        </div>
+    </body>
+    </html>
+    """
+    with open("index.html", "w", encoding="utf-8") as f:
+        f.write(html_template)
+        
