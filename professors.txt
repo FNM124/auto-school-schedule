@@ -1,1 +1,8 @@
-ALERT: Could not verify ΠΑΡΑΣΚΕΥΗ in current PDF.
+--- VERIFIED ΠΑΡΑΣΚΕΥΗ SCHEDULE ---
+Hour 1: 
+Hour 2: ΣΥΨΑ (ΒΘ2)
+Hour 3: ΠΑΡΑΣΚΕΥΑΪΔΗΣ (Β3)
+Hour 4: ΠΑΡΑΣΚΕΥΑΪΔΗΣ (Β3)
+Hour 5: ΚΑΡΟΥΖΑΚΗ (Β3)
+Hour 6: ΔΡΑΚΟΥ (Β3)
+Hour 7: ΓΟΥΡΓΟΥΛΗ (Β3)
