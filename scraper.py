@@ -9,35 +9,66 @@ URL = "https://sites.google.com/view/program-4lyk-ilioup/"
 CLASSES = ["Β3", "ΒΘ2"] # Priority list
 
 def clean_text(text):
-    """Normalizes Greek text for reliable header matching."""
+    """Accurate Greek normalization to prevent mismatch errors."""
     if not text: return ""
-    text = str(text).replace(" ", "").replace(".", "").upper()
-    replacements = {'Ά': 'Α', 'Έ': 'Ε', 'Ή': 'Η', 'Ί': 'Ι', 'Ό': 'Ο', 'Ύ': 'Υ', 'Ώ': 'Ω'}
+    text = str(text).strip().upper()
+    replacements = {
+        'Ά': 'Α', 'Έ': 'Ε', 'Ή': 'Η', 'Ί': 'Ι', 'Ό': 'Ο', 'Ύ': 'Υ', 'Ώ': 'Ω',
+        'Ϊ': 'Ι', 'Ϋ': 'Υ', 'ΐ': 'Ι', 'ΰ': 'Υ'
+    }
     for k, v in replacements.items():
         text = text.replace(k, v)
-    return text
+    text = re.sub(r'[^\w\s]', '', text)
+    return text.replace(" ", "")
 
 def update_web_html(schedule_text, target_day):
-    """Generates the static HTML file for the website."""
+    """Generates the Glassmorphism HTML file for the website."""
     html_template = f"""
     <!DOCTYPE html>
     <html lang="el">
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Schedule</title>
+        <title>School Schedule</title>
         <style>
-            body {{ background: #0f0f0f; color: #00ff41; font-family: 'Courier New', monospace; padding: 20px; display: flex; justify-content: center; }}
-            .terminal {{ background: #000; border: 2px solid #333; padding: 20px; border-radius: 8px; max-width: 500px; width: 100%; box-shadow: 0 0 20px rgba(0,255,65,0.2); }}
-            pre {{ white-space: pre-wrap; font-size: 1.1rem; line-height: 1.5; margin: 0; }}
-            .meta {{ color: #444; font-size: 0.7rem; margin-top: 15px; border-top: 1px solid #222; padding-top: 10px; }}
+            body {{ background: #050505; color: #fff; font-family: 'Inter', sans-serif; padding: 20px; display: flex; justify-content: center; }}
+            .card {{ background: #111; border: 1px solid #333; border-radius: 12px; width: 100%; max-width: 450px; padding: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }}
+            .header {{ display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 2px solid #00ff41; padding-bottom: 10px; }}
+            .day-name {{ font-size: 1.4rem; font-weight: 800; text-transform: uppercase; color: #00ff41; }}
+            
+            .row {{ display: flex; align-items: center; padding: 12px; border-bottom: 1px solid #222; }}
+            .row:last-child {{ border-bottom: none; }}
+            .hour-circle {{ width: 35px; height: 35px; border-radius: 50%; border: 1px solid #00ff41; display: flex; justify-content: center; align-items: center; margin-right: 15px; font-weight: bold; font-family: monospace; color: #00ff41; flex-shrink: 0; }}
+            .details {{ flex-grow: 1; font-size: 1rem; color: #eee; }}
+            .empty {{ color: #444; font-style: italic; }}
+            
+            .sync-info {{ text-align: center; margin-top: 20px; font-size: 0.6rem; color: #333; letter-spacing: 1px; }}
         </style>
     </head>
     <body>
-        <div class="terminal">
-            <pre>{schedule_text}</pre>
-            <div class="meta">SYSTEM_READY | LAST_SYNC: {datetime.now().strftime('%H:%M:%S')}</div>
+        <div class="card">
+            <div class="header">
+                <span class="day-name">{target_day}</span>
+                <span style="font-size: 0.7rem; color: #666;">B3 / BTH2</span>
+            </div>
+            <div id="list"></div>
+            <div class="sync-info">LAST_REFRESH: {datetime.now().strftime('%H:%M:%S')}</div>
         </div>
+        <script>
+            const raw = `{schedule_text}`;
+            const container = document.getElementById('list');
+            raw.split('\\n').forEach(line => {{
+                if (!line.includes('Hour')) return;
+                const [hr, info] = line.split(':');
+                const num = hr.replace('Hour', '').trim();
+                const text = info ? info.trim() : "";
+                
+                const div = document.createElement('div');
+                div.className = 'row';
+                div.innerHTML = `<div class="hour-circle">${{num}}</div><div class="details ${{text ? '' : 'empty'}}">${{text || 'No Class'}}</div>`;
+                container.appendChild(div);
+            }});
+        </script>
     </body>
     </html>
     """
@@ -70,20 +101,20 @@ def run_scraper():
         with pdfplumber.open(io.BytesIO(pdf_data)) as pdf:
             table = pdf.pages[0].extract_table()
             
-            # 3. Verify Day Location
-            for r_idx in range(min(3, len(table))):
-                for c_idx, cell in enumerate(table[r_idx]):
-                    if clean_text(target_day) in clean_text(cell):
+            # 3. Verify Day Location with enhanced flexibility
+            target_clean = clean_text(target_day)
+            for r_idx, row in enumerate(table[:5]): # Scan first 5 rows
+                if not row: continue
+                for c_idx, cell in enumerate(row):
+                    if cell and target_clean in clean_text(cell):
                         found_column = c_idx
                         break
                 if found_column != -1: break
 
             if found_column == -1:
-                error_msg = f"ALERT: Could not verify {target_day} in current PDF."
-                with open("professors.txt", "w", encoding="utf-8") as f:
-                    f.write(error_msg)
-                update_web_html(error_msg, target_day)
-                return
+                error_report = f"SYSTEM_ERROR: Could not find header '{target_day}' in PDF."
+                update_web_html(error_report, target_day)
+                raise ValueError(error_report)
 
             # 4. Search Logic
             ongoing_classes = {} 
