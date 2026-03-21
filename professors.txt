@@ -1,1 +1,8 @@
-ALERT: Could not verify ΔΕΥΤΕΡΑ in current PDF.
+--- VERIFIED ΔΕΥΤΕΡΑ SCHEDULE ---
+Hour 1: ΚΑΛΑΜΠΟΚΗ (Β3)
+Hour 2: ΣΥΨΑ (ΒΘ2)
+Hour 3: ΜΗΤΡΟΠΟΥΛΟΣ (ΒΘ2)
+Hour 4: ΛΕΝΤΖΟΥ (Β3)
+Hour 5: ΚΑΛΛΟΝΑΣ (Β3)
+Hour 6: ΓΟΥΡΓΟΥΛΗ (Β3)
+Hour 7: ΚΑΛΛΟΝΑΣ (Β3)
