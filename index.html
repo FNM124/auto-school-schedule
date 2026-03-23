@@ -23,21 +23,21 @@
     <body>
         <div class="card">
             <div class="header">
-                <span class="day-name">ΔΕΥΤΕΡΑ</span>
+                <span class="day-name">ΤΡΙΤΗ</span>
                 <span style="font-size: 0.7rem; color: #666;">B3 / BTH2</span>
             </div>
             <div id="list"></div>
-            <div class="sync-info">LAST_REFRESH: 22:17:55</div>
+            <div class="sync-info">LAST_REFRESH: 01:25:12</div>
         </div>
         <script>
-            const raw = `--- VERIFIED ΔΕΥΤΕΡΑ SCHEDULE ---
-Hour 1: ΚΑΛΑΜΠΟΚΗ (Β3)
-Hour 2: ΣΥΨΑ (ΒΘ2)
-Hour 3: ΜΗΤΡΟΠΟΥΛΟΣ (ΒΘ2)
-Hour 4: ΛΕΝΤΖΟΥ (Β3)
-Hour 5: ΚΑΛΛΟΝΑΣ (Β3)
-Hour 6: ΓΟΥΡΓΟΥΛΗ (Β3)
-Hour 7: ΚΑΛΛΟΝΑΣ (Β3)`;
+            const raw = `--- VERIFIED ΤΡΙΤΗ SCHEDULE ---
+Hour 1: ΛΕΝΤΖΟΥ (Β3)
+Hour 2: ΑΣΛΑΝΙΔΟΥ (Β3)
+Hour 3: ΠΑΠΑΒΑΣΙΛΕΙΟΥ (Β3)
+Hour 4: ΚΑΤΣΑΡΟΥ (Β3)
+Hour 5: ΠΑΠΑΒΑΣΙΛΕΙΟΥ (Β3)
+Hour 6: ΠΑΡΑΣΚΕΥΑΪΔΗΣ (Β3)
+Hour 7: ΔΡΑΚΟΥ (Β3)`;
             const container = document.getElementById('list');
             raw.split('\n').forEach(line => {
                 if (!line.includes('Hour')) return;
