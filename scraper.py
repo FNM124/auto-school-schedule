@@ -22,7 +22,9 @@ def clean_text(text):
     return text.replace(" ", "")
 
 def update_web_html(schedule_text, target_day):
-    """Generates the Glassmorphism HTML file for the website."""
+    # Get the current year for the copyright
+    current_year = datetime.now().year
+    
     html_template = f"""
     <!DOCTYPE html>
     <html lang="el">
@@ -31,8 +33,8 @@ def update_web_html(schedule_text, target_day):
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>School Schedule</title>
         <style>
-            body {{ background: #050505; color: #fff; font-family: 'Inter', sans-serif; padding: 20px; display: flex; justify-content: center; }}
-            .card {{ background: #111; border: 1px solid #333; border-radius: 12px; width: 100%; max-width: 450px; padding: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }}
+            body {{ background: #050505; color: #fff; font-family: 'Inter', sans-serif; padding: 20px; display: flex; justify-content: center; min-height: 100vh; flex-direction: column; align-items: center; }}
+            .card {{ background: #111; border: 1px solid #333; border-radius: 12px; width: 100%; max-width: 450px; padding: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); margin-bottom: 20px; }}
             .header {{ display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 2px solid #00ff41; padding-bottom: 10px; }}
             .day-name {{ font-size: 1.4rem; font-weight: 800; text-transform: uppercase; color: #00ff41; }}
             
@@ -42,7 +44,8 @@ def update_web_html(schedule_text, target_day):
             .details {{ flex-grow: 1; font-size: 1rem; color: #eee; }}
             .empty {{ color: #444; font-style: italic; }}
             
-            .sync-info {{ text-align: center; margin-top: 20px; font-size: 0.6rem; color: #333; letter-spacing: 1px; }}
+            .sync-info {{ text-align: center; font-size: 0.6rem; color: #333; letter-spacing: 1px; margin-bottom: 10px; }}
+            .copyright {{ text-align: center; font-size: 0.6rem; color: #222; font-family: monospace; text-transform: uppercase; }}
         </style>
     </head>
     <body>
@@ -52,8 +55,11 @@ def update_web_html(schedule_text, target_day):
                 <span style="font-size: 0.7rem; color: #666;">B3 / BTH2</span>
             </div>
             <div id="list"></div>
-            <div class="sync-info">LAST_REFRESH: {datetime.now().strftime('%H:%M:%S')}</div>
         </div>
+        
+        <div class="sync-info">LAST_REFRESH: {datetime.now().strftime('%H:%M:%S')}</div>
+        <div class="copyright">© FNM124 {current_year} | ALL RIGHTS RESERVED</div>
+
         <script>
             const raw = `{schedule_text}`;
             const container = document.getElementById('list');
