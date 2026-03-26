@@ -22,7 +22,7 @@ def clean_text(text):
     return text.replace(" ", "")
 
 def update_web_html(schedule_text, target_day):
-    # Get the current year for the copyright
+    # Get the current year
     current_year = datetime.now().year
     
     html_template = f"""
@@ -30,35 +30,73 @@ def update_web_html(schedule_text, target_day):
     <html lang="el">
     <head>
         <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
         <title>School Schedule</title>
         <style>
-            body {{ background: #050505; color: #fff; font-family: 'Inter', sans-serif; padding: 20px; display: flex; justify-content: center; min-height: 100vh; flex-direction: column; align-items: center; }}
-            .card {{ background: #111; border: 1px solid #333; border-radius: 12px; width: 100%; max-width: 450px; padding: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); margin-bottom: 20px; }}
-            .header {{ display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 2px solid #00ff41; padding-bottom: 10px; }}
-            .day-name {{ font-size: 1.4rem; font-weight: 800; text-transform: uppercase; color: #00ff41; }}
+            /* Fixed height and hidden overflow to prevent scrolling */
+            body {{ 
+                background: #050505; 
+                color: #fff; 
+                font-family: 'Inter', sans-serif; 
+                padding: 20px; 
+                display: flex; 
+                flex-direction: column;
+                align-items: center; 
+                justify-content: center;
+                height: 100vh; 
+                margin: 0;
+                overflow: hidden; 
+            }}
+            .card {{ 
+                background: #111; 
+                border: 1px solid #333; 
+                border-radius: 12px; 
+                width: 100%; 
+                max-width: 400px; 
+                padding: 20px; 
+                box-shadow: 0 10px 30px rgba(0,0,0,0.5); 
+            }}
+            .header {{ 
+                display: flex; 
+                justify-content: space-between; 
+                align-items: center; 
+                margin-bottom: 15px; 
+                border-bottom: 2px solid #00ff41; 
+                padding-bottom: 10px; 
+            }}
+            .day-name {{ font-size: 1.2rem; font-weight: 800; text-transform: uppercase; color: #00ff41; }}
             
-            .row {{ display: flex; align-items: center; padding: 12px; border-bottom: 1px solid #222; }}
+            .row {{ display: flex; align-items: center; padding: 10px 0; border-bottom: 1px solid #222; }}
             .row:last-child {{ border-bottom: none; }}
-            .hour-circle {{ width: 35px; height: 35px; border-radius: 50%; border: 1px solid #00ff41; display: flex; justify-content: center; align-items: center; margin-right: 15px; font-weight: bold; font-family: monospace; color: #00ff41; flex-shrink: 0; }}
-            .details {{ flex-grow: 1; font-size: 1rem; color: #eee; }}
+            .hour-circle {{ 
+                width: 30px; height: 30px; 
+                border-radius: 50%; 
+                border: 1px solid #00ff41; 
+                display: flex; justify-content: center; align-items: center; 
+                margin-right: 15px; font-weight: bold; font-family: monospace; 
+                color: #00ff41; flex-shrink: 0; font-size: 0.9rem;
+            }}
+            .details {{ flex-grow: 1; font-size: 0.95rem; color: #eee; }}
             .empty {{ color: #444; font-style: italic; }}
             
-            .sync-info {{ text-align: center; font-size: 0.6rem; color: #333; letter-spacing: 1px; margin-bottom: 10px; }}
-            .copyright {{ text-align: center; font-size: 0.6rem; color: #222; font-family: monospace; text-transform: uppercase; }}
+            .footer-box {{ margin-top: 20px; text-align: center; }}
+            .sync-info {{ font-size: 0.6rem; color: #333; margin-bottom: 4px; font-family: monospace; }}
+            .copyright {{ font-size: 0.65rem; color: #444; font-weight: 400; }}
         </style>
     </head>
     <body>
         <div class="card">
             <div class="header">
                 <span class="day-name">{target_day}</span>
-                <span style="font-size: 0.7rem; color: #666;">B3 / BTH2</span>
+                <span style="font-size: 0.7rem; color: #444;">B3 / BTH2</span>
             </div>
             <div id="list"></div>
         </div>
         
-        <div class="sync-info">LAST_REFRESH: {datetime.now().strftime('%H:%M:%S')}</div>
-        <div class="copyright">© FNM124 {current_year} | ALL RIGHTS RESERVED</div>
+        <div class="footer-box">
+            <div class="sync-info">last sync: {datetime.now().strftime('%H:%M:%S')}</div>
+            <div class="copyright">© fnm124 {current_year} • all rights reserved</div>
+        </div>
 
         <script>
             const raw = `{schedule_text}`;
@@ -71,7 +109,7 @@ def update_web_html(schedule_text, target_day):
                 
                 const div = document.createElement('div');
                 div.className = 'row';
-                div.innerHTML = `<div class="hour-circle">${{num}}</div><div class="details ${{text ? '' : 'empty'}}">${{text || 'No Class'}}</div>`;
+                div.innerHTML = `<div class="hour-circle">${{num}}</div><div class="details ${{text ? '' : 'empty'}}">${{text || 'no session'}}</div>`;
                 container.appendChild(div);
             }});
         </script>
@@ -80,6 +118,7 @@ def update_web_html(schedule_text, target_day):
     """
     with open("index.html", "w", encoding="utf-8") as f:
         f.write(html_template)
+
 
 def run_scraper():
     # 1. Target Next School Day
