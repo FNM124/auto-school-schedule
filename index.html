@@ -28,18 +28,18 @@
                 <span style="font-size: 0.7rem; color: #666;">B3 / BTH2</span>
             </div>
             <div id="list"></div>
-            <div class="sync-info">LAST_REFRESH: 12:54:21</div>
+            <div class="sync-info">LAST_REFRESH: 14:48:57</div>
             <div class="copyright">© FNM124 2026 All rights reserved.</div>
         </div>
         <script>
             const raw = `--- VERIFIED ΠΑΡΑΣΚΕΥΗ SCHEDULE ---
 Hour 1: ΠΑΡΑΣΚΕΥΑΪΔΗΣ (Β3)
 Hour 2: ΣΥΨΑ (ΒΘ2)
-Hour 3: 
+Hour 3: ΠΑΡΑΣΚΕΥΑΪΔΗΣ (Β3)
 Hour 4: ΚΑΡΟΥΖΑΚΗ (Β3)
-Hour 5: ΠΑΡΑΣΚΕΥΑΪΔΗΣ (Β3)
-Hour 6: ΔΡΑΚΟΥ (Β3)
-Hour 7: ΓΟΥΡΓΟΥΛΗ (Β3)`;
+Hour 5: ΔΡΑΚΟΥ (Β3)
+Hour 6: ΓΟΥΡΓΟΥΛΗ (Β3)
+Hour 7: `;
             const container = document.getElementById('list');
             raw.split('\n').forEach(line => {
                 if (!line.includes('Hour')) return;
