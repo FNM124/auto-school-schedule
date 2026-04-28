@@ -1,1 +1,8 @@
-System Error: SYSTEM_ERROR: Could not find header 'ΤΕΤΑΡΤΗ' in PDF.
+--- VERIFIED ΤΕΤΑΡΤΗ SCHEDULE ---
+Hour 1: ΣΥΨΑ (ΒΘ2)
+Hour 2: ΜΗΤΡΟΠΟΥΛΟΣ (ΒΘ2)
+Hour 3: 
+Hour 4: 
+Hour 5: 
+Hour 6: 
+Hour 7: 
