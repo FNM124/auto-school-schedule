@@ -1,8 +1,1 @@
---- VERIFIED ΤΡΙΤΗ SCHEDULE ---
-Hour 1: ΛΕΝΤΖΟΥ (Β3)
-Hour 2: ΑΣΛΑΝΙΔΟΥ (Β3)
-Hour 3: ΠΑΠΑΒΑΣΙΛΕΙΟΥ (Β3)
-Hour 4: ΚΑΤΣΑΡΟΥ (Β3)
-Hour 5: ΠΑΠΑΒΑΣΙΛΕΙΟΥ (Β3)
-Hour 6: ΠΑΡΑΣΚΕΥΑΪΔΗΣ (Β3)
-Hour 7: ΔΡΑΚΟΥ (Β3)
+System Error: SYSTEM_ERROR: Could not find header 'ΤΕΤΑΡΤΗ' in PDF.
