@@ -24,16 +24,22 @@
     <body>
         <div class="card">
             <div class="header">
-                <span class="day-name">ERROR</span>
+                <span class="day-name">ΤΡΙΤΗ</span>
                 <span style="font-size: 0.7rem; color: #666;">B3 / BTH2</span>
             </div>
             <div id="list"></div>
-            <div class="sync-info">LAST_REFRESH: 10:06:41</div>
+            <div class="sync-info">LAST_REFRESH: 13:25:48</div>
             <div class="copyright">© FNM124 2026 All rights reserved.</div>
         </div>
         <script>
-            const raw = `CRITICAL ERROR:
-System Error: SYSTEM_ERROR: Could not find header 'ΤΡΙΤΗ' in PDF.`;
+            const raw = `--- VERIFIED ΤΡΙΤΗ SCHEDULE ---
+Hour 1: ΠΑΠΑΒΑΣΙΛΕΙΟΥ (Β3)
+Hour 2: ΑΣΛΑΝΙΔΟΥ (Β3)
+Hour 3: ΠΑΠΑΒΑΣΙΛΕΙΟΥ (Β3)
+Hour 4: ΚΑΤΣΑΡΟΥ (Β3)
+Hour 5: ΛΕΝΤΖΟΥ (Β3)
+Hour 6: ΠΑΡΑΣΚΕΥΑΪΔΗΣ (Β3)
+Hour 7: ΔΡΑΚΟΥ (Β3)`;
             const container = document.getElementById('list');
             raw.split('\n').forEach(line => {
                 if (!line.includes('Hour')) return;
