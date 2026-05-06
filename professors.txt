@@ -1,8 +1,1 @@
---- VERIFIED ΤΕΤΑΡΤΗ SCHEDULE ---
-Hour 1: 
-Hour 2: ΣΥΨΑ (ΒΘ2)
-Hour 3: ΜΗΤΡΟΠΟΥΛΟΣ (ΒΘ2)
-Hour 4: ΚΑΛΑΜΠΟΚΗ (Β3)
-Hour 5: ΠΑΡΑΣΚΕΥΑΪΔΗΣ (Β3)
-Hour 6: ΔΡΑΚΟΥ (Β3)
-Hour 7: ΔΡΑΚΟΥ (Β3)
+System Error: SYSTEM_ERROR: Could not find header 'ΠΕΜΠΤΗ' in PDF.
