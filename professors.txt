@@ -1,8 +1,1 @@
---- VERIFIED ΠΑΡΑΣΚΕΥΗ SCHEDULE ---
-Hour 1: ΠΑΠΑΒΑΣΙΛΕΙΟΥ (Β3)
-Hour 2: ΜΗΤΡΟΠΟΥΛΟΣ (ΒΘ2)
-Hour 3: ΚΑΛΑΜΠΟΚΗ (Β3)
-Hour 4: ΚΟΥΒΑΡΑ (Β3)
-Hour 5: ΓΟΥΡΓΟΥΛΗ (Β3)
-Hour 6: ΠΑΡΑΣΚΕΥΑΪΔΗΣ (Β3)
-Hour 7: 
+System Error: SYSTEM_ERROR: Could not find header 'ΔΕΥΤΕΡΑ' in PDF.
