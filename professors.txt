@@ -1,1 +1,8 @@
-System Error: SYSTEM_ERROR: Could not find header 'ΠΑΡΑΣΚΕΥΗ' in PDF.
+--- VERIFIED ΠΑΡΑΣΚΕΥΗ SCHEDULE ---
+Hour 1: ΑΠΟΣΤΟΛΟΥ (Β3)
+Hour 2: ΣΥΨΑ (ΒΘ2)
+Hour 3: ΣΩΤΗΡΙΟΥ (Β3)
+Hour 4: ΠΑΡΑΣΚΕΥΑΪΔΗΣ (Β3)
+Hour 5: ΚΑΛΑΜΠΟΚΗ (Β3)
+Hour 6: ΓΟΥΡΓΟΥΛΗ (Β3)
+Hour 7: 
