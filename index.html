@@ -24,22 +24,22 @@
     <body>
         <div class="card">
             <div class="header">
-                <span class="day-name">ΤΡΙΤΗ</span>
+                <span class="day-name">ΤΕΤΑΡΤΗ</span>
                 <span style="font-size: 0.7rem; color: #666;">B3 / BTH2</span>
             </div>
             <div id="list"></div>
-            <div class="sync-info">LAST_REFRESH: 23:30:34</div>
+            <div class="sync-info">LAST_REFRESH: 04:02:45</div>
             <div class="copyright">© FNM124 2026 All rights reserved.</div>
         </div>
         <script>
-            const raw = `--- VERIFIED ΤΡΙΤΗ SCHEDULE ---
-Hour 1: ΣΩΤΗΡΙΟΥ (Β3)
-Hour 2: ΓΟΥΡΓΟΥΛΗ (Β3)
-Hour 3: ΚΟΥΒΑΡΑ (Β3)
-Hour 4: ΑΠΟΣΤΟΛΟΥ (Β3)
-Hour 5: ΑΣΛΑΝΙΔΟΥ (Β3)
-Hour 6: 
-Hour 7: `;
+            const raw = `--- VERIFIED ΤΕΤΑΡΤΗ SCHEDULE ---
+Hour 1: ΤΟΥΡΛΕΝΤΕ (Β3)
+Hour 2: ΣΥΨΑ (ΒΘ2)
+Hour 3: ΜΗΤΡΟΠΟΥΛΟΣ (ΒΘ2)
+Hour 4: ΚΑΛΑΜΠΟΚΗ (Β3)
+Hour 5: ΠΑΡΑΣΚΕΥΑΪΔΗΣ (Β3)
+Hour 6: ΠΑΡΑΣΚΕΥΑΪΔΗΣ (Β3)
+Hour 7: ΚΟΥΒΑΡΑ (Β3)`;
             const container = document.getElementById('list');
             raw.split('\n').forEach(line => {
                 if (!line.includes('Hour')) return;
