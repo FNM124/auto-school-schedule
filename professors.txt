@@ -1,8 +1,1 @@
---- VERIFIED ΔΕΥΤΕΡΑ SCHEDULE ---
-Hour 1: ΑΣΛΑΝΙΔΟΥ (Β3)
-Hour 2: 
-Hour 3: 
-Hour 4: ΚΑΛΑΜΠΟΚΗ (Β3)
-Hour 5: ΣΩΤΗΡΙΟΥ (Β3)
-Hour 6: ΠΑΡΑΣΚΕΥΑΪΔΗΣ (Β3)
-Hour 7: ΠΑΡΑΣΚΕΥΑΪΔΗΣ (Β3)
+System Error: 'NoneType' object is not subscriptable
