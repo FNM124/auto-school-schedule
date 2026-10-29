@@ -1,1 +1,8 @@
-System Error: 'NoneType' object is not subscriptable
+--- VERIFIED ΠΑΡΑΣΚΕΥΗ SCHEDULE ---
+Hour 1: ΑΣΛΑΝΙΔΟΥ (Β3)
+Hour 2: ΠΑΡΑΣΚΕΥΑΪΔΗΣ (Β3)
+Hour 3: ΣΥΨΑ (ΒΘ2)
+Hour 4: ΑΠΟΣΤΟΛΟΥ (Β3)
+Hour 5: 
+Hour 6: 
+Hour 7: 
